@@ -32,6 +32,7 @@ import argparse
 import json
 import os
 import platform
+import statistics
 import subprocess
 import sys
 import time
@@ -91,6 +92,9 @@ def system_info():
 
 def timed_generate(model, tokenizer, prompt, max_tokens, draft_model=None):
     """Run generation, return timing and memory metrics."""
+    # Record baseline memory before inference (model loaded, no KV cache)
+    mx.eval(mx.zeros(1))
+    baseline_mem = get_mem()
     mx.reset_peak_memory()
     actual_tokens = count_tokens(prompt, tokenizer)
 
@@ -127,6 +131,7 @@ def timed_generate(model, tokenizer, prompt, max_tokens, draft_model=None):
         "decode_tps": round(decode_tps, 1),
         "prefill_tps": round(prefill_tps, 1),
         "gpu_peak_mb": round(mem["peak_mb"]),
+        "baseline_mem_mb": round(baseline_mem["active_mb"]),
     }
 
 
@@ -137,11 +142,14 @@ def timed_generate(model, tokenizer, prompt, max_tokens, draft_model=None):
 def cmd_kv_sweep(args):
     """Sweep context lengths, measure KV cache memory growth."""
     ctx_list = [int(x) for x in args.ctx.split(",")]
+    repeats = args.repeats
+    warmup = args.warmup
 
     print(f"KV Cache Memory Sweep")
     print(f"Model: {args.model}")
     print(f"Contexts: {ctx_list}")
     print(f"Output tokens per run: {args.output_tokens}")
+    print(f"Repeats: {repeats} | Warmup: {warmup}")
     print("=" * 80)
 
     print(f"Loading model...")
@@ -149,48 +157,133 @@ def cmd_kv_sweep(args):
     mx.eval(model.parameters())
     model_mem = get_mem()["active_mb"]
     print(f"Model memory: {model_mem:,.0f} MB")
+
+    if warmup:
+        print("Warmup pass...")
+        timed_generate(model, tokenizer, "hello", 1)
+        print("Warmup done.")
+
     print("=" * 80)
 
     results = []
+    failed = False
     for ctx in ctx_list:
         print(f"\nContext: {ctx:,} tokens")
         prompt = make_prompt(ctx, tokenizer)
 
-        try:
-            r = timed_generate(model, tokenizer, prompt, args.output_tokens)
-            r["ctx"] = ctx
-            r["kv_cache_mb"] = round(r["gpu_peak_mb"] - model_mem)
-            r["model_mb"] = round(model_mem)
-            r["status"] = "ok"
+        runs = []
+        for rep in range(repeats):
+            if repeats > 1:
+                print(f"  Run {rep+1}/{repeats}:")
+            try:
+                r = timed_generate(model, tokenizer, prompt, args.output_tokens)
+                r["ctx"] = ctx
+                r["run"] = rep + 1
+                r["kv_cache_mb"] = round(r["gpu_peak_mb"] - model_mem)
+                r["model_mb"] = round(model_mem)
+                r["overhead_mb"] = round(r["gpu_peak_mb"] - r["baseline_mem_mb"])
+                r["status"] = "ok"
 
-            print(f"  TTFT:     {r['ttft_ms']:>10,.0f} ms  ({r['prefill_tps']:,.0f} prefill t/s)")
-            print(f"  Decode:   {r['decode_tps']:>10.1f} t/s  ({r['output_tokens']} tokens)")
-            print(f"  GPU peak: {r['gpu_peak_mb']:>10,.0f} MB")
-            print(f"  KV cache: {r['kv_cache_mb']:>10,.0f} MB")
+                prefix = "    " if repeats > 1 else "  "
+                print(f"{prefix}TTFT:     {r['ttft_ms']:>10,.0f} ms  ({r['prefill_tps']:,.0f} prefill t/s)")
+                print(f"{prefix}Decode:   {r['decode_tps']:>10.1f} t/s  ({r['output_tokens']} tokens)")
+                print(f"{prefix}GPU peak: {r['gpu_peak_mb']:>10,.0f} MB  (baseline: {r['baseline_mem_mb']:,.0f} MB)")
+                print(f"{prefix}KV cache: {r['kv_cache_mb']:>10,.0f} MB")
 
-        except Exception as e:
-            print(f"  FAILED: {e}")
-            r = {"ctx": ctx, "status": "failed", "error": str(e),
-                 "gpu_peak_mb": round(get_mem()["peak_mb"])}
+                runs.append(r)
 
-        results.append(r)
-        if r["status"] == "failed":
+            except Exception as e:
+                print(f"  FAILED: {e}")
+                runs.append({"ctx": ctx, "run": rep + 1, "status": "failed",
+                             "error": str(e), "gpu_peak_mb": round(get_mem()["peak_mb"])})
+                failed = True
+                break
+
+        if failed:
+            # Store partial runs for this context length
+            results.append({
+                "ctx": ctx,
+                "status": "failed",
+                "runs": runs,
+                "error": runs[-1].get("error", "unknown"),
+                "gpu_peak_mb": runs[-1].get("gpu_peak_mb", 0),
+            })
             print("  Stopping sweep.")
             break
+
+        # Aggregate stats across runs
+        ok_runs = [r for r in runs if r["status"] == "ok"]
+        ttfts = [r["ttft_ms"] for r in ok_runs]
+        decode_list = [r["decode_tps"] for r in ok_runs]
+        peak_list = [r["gpu_peak_mb"] for r in ok_runs]
+        baseline_list = [r["baseline_mem_mb"] for r in ok_runs]
+
+        def mean(lst): return round(sum(lst) / len(lst), 1) if lst else 0
+        def std(lst): return round(statistics.stdev(lst), 1) if len(lst) > 1 else 0
+
+        agg = {
+            "ctx": ctx,
+            "status": "ok",
+            "repeats": len(ok_runs),
+            "model_mb": round(model_mem),
+            # Means
+            "ttft_ms": mean(ttfts),
+            "decode_tps": mean(decode_list),
+            "prefill_tps": mean([r["prefill_tps"] for r in ok_runs]),
+            "gpu_peak_mb": round(mean(peak_list)),
+            "kv_cache_mb": round(mean(peak_list) - model_mem),
+            "baseline_mem_mb": round(mean(baseline_list)),
+            # Stddev
+            "ttft_ms_stddev": std(ttfts),
+            "decode_tps_stddev": std(decode_list),
+            "gpu_peak_mb_stddev": std(peak_list),
+            # Individual runs (always included for transparency)
+            "runs": runs,
+        }
+
+        # Flag unstable points (stddev > 5% of mean)
+        unstable = []
+        if agg["ttft_ms"] > 0 and agg["ttft_ms_stddev"] / agg["ttft_ms"] > 0.05:
+            unstable.append("ttft_ms")
+        if agg["decode_tps"] > 0 and agg["decode_tps_stddev"] / agg["decode_tps"] > 0.05:
+            unstable.append("decode_tps")
+        if unstable:
+            agg["unstable"] = unstable
+
+        results.append(agg)
+
+        if repeats > 1:
+            print(f"  Mean: TTFT={agg['ttft_ms']:,.0f}ms ±{agg['ttft_ms_stddev']:.0f}  "
+                  f"Decode={agg['decode_tps']:.1f}t/s ±{agg['decode_tps_stddev']:.1f}  "
+                  f"Peak={agg['gpu_peak_mb']:,.0f}MB")
+            if unstable:
+                print(f"  ⚠ UNSTABLE: {', '.join(unstable)}")
 
     # Summary
     print(f"\n{'='*80}")
     print(f"SUMMARY — {os.path.basename(args.model)}")
     print(f"{'='*80}")
-    print(f"Model: {model_mem:,.0f} MB | RAM: {system_info().get('ram_gb', '?')} GB")
-    print(f"{'Ctx':>10} {'TTFT':>10} {'Prefill':>12} {'Decode':>10} {'Peak':>10} {'KV':>10}")
-    print("-" * 64)
-    for r in results:
-        if r["status"] == "ok":
-            print(f"{r['ctx']:>10,} {r['ttft_ms']:>9,.0f}ms {r['prefill_tps']:>10,.0f}t/s "
-                  f"{r['decode_tps']:>8.1f}t/s {r['gpu_peak_mb']:>8,.0f}MB {r['kv_cache_mb']:>8,.0f}MB")
-        else:
-            print(f"{r['ctx']:>10,} {'--- FAILED ---':>42} {r.get('gpu_peak_mb',0):>8,.0f}MB")
+    print(f"Model: {model_mem:,.0f} MB | RAM: {system_info().get('ram_gb', '?')} GB | Repeats: {repeats}")
+    if repeats > 1:
+        print(f"{'Ctx':>10} {'TTFT mean':>12} {'±':>6} {'Decode mean':>12} {'±':>6} {'Peak':>10} {'KV':>10}")
+        print("-" * 70)
+        for r in results:
+            if r["status"] == "ok":
+                flag = " ⚠" if r.get("unstable") else ""
+                print(f"{r['ctx']:>10,} {r['ttft_ms']:>10,.0f}ms {r['ttft_ms_stddev']:>5.0f} "
+                      f"{r['decode_tps']:>10.1f}t/s {r['decode_tps_stddev']:>5.1f} "
+                      f"{r['gpu_peak_mb']:>8,.0f}MB {r['kv_cache_mb']:>8,.0f}MB{flag}")
+            else:
+                print(f"{r['ctx']:>10,} {'--- FAILED ---':>50} {r.get('gpu_peak_mb',0):>8,.0f}MB")
+    else:
+        print(f"{'Ctx':>10} {'TTFT':>10} {'Prefill':>12} {'Decode':>10} {'Peak':>10} {'KV':>10}")
+        print("-" * 64)
+        for r in results:
+            if r["status"] == "ok":
+                print(f"{r['ctx']:>10,} {r['ttft_ms']:>9,.0f}ms {r['prefill_tps']:>10,.0f}t/s "
+                      f"{r['decode_tps']:>8.1f}t/s {r['gpu_peak_mb']:>8,.0f}MB {r['kv_cache_mb']:>8,.0f}MB")
+            else:
+                print(f"{r['ctx']:>10,} {'--- FAILED ---':>42} {r.get('gpu_peak_mb',0):>8,.0f}MB")
 
     save(args.output, args.model, model_mem, results, "kv_sweep")
 
@@ -226,7 +319,6 @@ def cmd_inference(args):
         results.append(r)
 
     # Summary
-    import statistics
     ttfts = [r["ttft_ms"] for r in results]
     tps_list = [r["decode_tps"] for r in results]
     print(f"\n{'='*80}")
@@ -289,7 +381,6 @@ def cmd_spec_decode(args):
         print(f"    TTFT: {r['ttft_ms']:,.0f}ms | Decode: {r['decode_tps']:.1f} t/s")
         specdec_results.append(r)
 
-    import statistics
     b_tps = statistics.median([r["decode_tps"] for r in baseline_results])
     s_tps = statistics.median([r["decode_tps"] for r in specdec_results])
     print(f"\n{'='*80}")
@@ -338,6 +429,10 @@ def main():
     kv.add_argument("--model", required=True)
     kv.add_argument("--ctx", default="2048,4096,8192,16384,32768,65536,131072")
     kv.add_argument("--output-tokens", type=int, default=64)
+    kv.add_argument("--repeats", type=int, default=1,
+                    help="Runs per context length (default: 1)")
+    kv.add_argument("--warmup", action="store_true",
+                    help="Run one silent inference pass before measurement")
     kv.add_argument("--output", default="results/kv_sweep.json")
 
     # inference
