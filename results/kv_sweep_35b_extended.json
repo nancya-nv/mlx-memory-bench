@@ -1,0 +1,81 @@
+{
+  "bench_type": "kv_sweep",
+  "model": "/Users/perflab1/models/Qwen3.5-35B-A3B-4bit",
+  "model_mem_mb": 18594.992317199707,
+  "system": {
+    "hostname": "SC-NB-MAC-M5MAX-PERFLAB-01",
+    "platform": "macOS-26.4-arm64-arm-64bit-Mach-O",
+    "chip": "Apple M5 Max",
+    "ram_gb": 128,
+    "macos": "26.4"
+  },
+  "timestamp": "2026-04-09T14:23:33",
+  "results": [
+    {
+      "ctx": 262144,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 18595,
+      "ttft_ms": 248314.4,
+      "decode_tps": 49.6,
+      "prefill_tps": 959.8,
+      "gpu_peak_mb": 40276,
+      "kv_cache_mb": 21681,
+      "baseline_mem_mb": 18595,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 238331,
+          "output_tokens": 64,
+          "ttft_ms": 248314.4,
+          "decode_ms": 1289.9,
+          "decode_tps": 49.6,
+          "prefill_tps": 959.8,
+          "gpu_peak_mb": 40276,
+          "baseline_mem_mb": 18595,
+          "ctx": 262144,
+          "run": 1,
+          "kv_cache_mb": 21681,
+          "model_mb": 18595,
+          "overhead_mb": 21681,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 524288,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 18595,
+      "ttft_ms": 921854.2,
+      "decode_tps": 30.4,
+      "prefill_tps": 517.0,
+      "gpu_peak_mb": 60630,
+      "kv_cache_mb": 42035,
+      "baseline_mem_mb": 18595,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 476641,
+          "output_tokens": 64,
+          "ttft_ms": 921854.2,
+          "decode_ms": 2106.2,
+          "decode_tps": 30.4,
+          "prefill_tps": 517.0,
+          "gpu_peak_mb": 60630,
+          "baseline_mem_mb": 18595,
+          "ctx": 524288,
+          "run": 1,
+          "kv_cache_mb": 42035,
+          "model_mb": 18595,
+          "overhead_mb": 42035,
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}
