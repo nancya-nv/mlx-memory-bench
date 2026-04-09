@@ -1,0 +1,15 @@
+{
+  "model": "mlx-community/Qwen3.5-122B-A10B-4bit",
+  "model_mem_mb": 65509,
+  "chip": "Apple M5 Max",
+  "ram_gb": 128,
+  "results": [
+    {"ctx": 2048, "actual_tokens": 1881, "out_tokens": 64, "ttft_ms": 2050.0, "decode_tps": 66.9, "prefill_tps": 918.0, "gpu_peak_mb": 68120, "kv_cache_mb": 2610, "model_mb": 65509, "status": "ok"},
+    {"ctx": 4096, "actual_tokens": 3741, "out_tokens": 64, "ttft_ms": 2207.0, "decode_tps": 66.3, "prefill_tps": 1695.0, "gpu_peak_mb": 68221, "kv_cache_mb": 2712, "model_mb": 65509, "status": "ok"},
+    {"ctx": 8192, "actual_tokens": 7461, "out_tokens": 64, "ttft_ms": 4373.0, "decode_tps": 64.6, "prefill_tps": 1706.0, "gpu_peak_mb": 68819, "kv_cache_mb": 3309, "model_mb": 65509, "status": "ok"},
+    {"ctx": 16384, "actual_tokens": 14911, "out_tokens": 64, "ttft_ms": 9492.0, "decode_tps": 61.9, "prefill_tps": 1571.0, "gpu_peak_mb": 70009, "kv_cache_mb": 4499, "model_mb": 65509, "status": "ok"},
+    {"ctx": 32768, "actual_tokens": 29801, "out_tokens": 64, "ttft_ms": 22055.0, "decode_tps": 132.8, "prefill_tps": 1351.0, "gpu_peak_mb": 72163, "kv_cache_mb": 6653, "model_mb": 65509, "status": "ok"},
+    {"ctx": 65536, "actual_tokens": 59591, "out_tokens": 64, "ttft_ms": 57393.0, "decode_tps": 130.1, "prefill_tps": 1038.0, "gpu_peak_mb": 76843, "kv_cache_mb": 11333, "model_mb": 65509, "status": "ok"},
+    {"ctx": 131072, "actual_tokens": 119171, "out_tokens": 64, "ttft_ms": 171674.0, "decode_tps": 38.5, "prefill_tps": 694.0, "gpu_peak_mb": 85795, "kv_cache_mb": 20286, "model_mb": 65509, "status": "ok"}
+  ]
+}
