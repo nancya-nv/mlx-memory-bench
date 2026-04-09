@@ -1,0 +1,246 @@
+{
+  "bench_type": "kv_sweep",
+  "model": "/Users/perflab1/models/Qwen2.5-72B-Instruct-4bit",
+  "model_mem_mb": 39005.578132629395,
+  "system": {
+    "hostname": "SC-NB-MAC-M5MAX-PERFLAB-01",
+    "platform": "macOS-26.4-arm64-arm-64bit-Mach-O",
+    "chip": "Apple M5 Max",
+    "ram_gb": 128,
+    "macos": "26.4"
+  },
+  "timestamp": "2026-04-09T14:01:36",
+  "results": [
+    {
+      "ctx": 2048,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 5916.5,
+      "decode_tps": 12.8,
+      "prefill_tps": 317.9,
+      "gpu_peak_mb": 40466,
+      "kv_cache_mb": 1460,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 1881,
+          "output_tokens": 64,
+          "ttft_ms": 5916.5,
+          "decode_ms": 5008.6,
+          "decode_tps": 12.8,
+          "prefill_tps": 317.9,
+          "gpu_peak_mb": 40466,
+          "baseline_mem_mb": 39006,
+          "ctx": 2048,
+          "run": 1,
+          "kv_cache_mb": 1460,
+          "model_mb": 39006,
+          "overhead_mb": 1460,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 4096,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 11833.9,
+      "decode_tps": 12.6,
+      "prefill_tps": 316.1,
+      "gpu_peak_mb": 40974,
+      "kv_cache_mb": 1968,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 3741,
+          "output_tokens": 64,
+          "ttft_ms": 11833.9,
+          "decode_ms": 5080.2,
+          "decode_tps": 12.6,
+          "prefill_tps": 316.1,
+          "gpu_peak_mb": 40974,
+          "baseline_mem_mb": 39006,
+          "ctx": 4096,
+          "run": 1,
+          "kv_cache_mb": 1968,
+          "model_mb": 39006,
+          "overhead_mb": 1968,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 8192,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 27253.6,
+      "decode_tps": 11.8,
+      "prefill_tps": 273.8,
+      "gpu_peak_mb": 42039,
+      "kv_cache_mb": 3033,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 7461,
+          "output_tokens": 64,
+          "ttft_ms": 27253.6,
+          "decode_ms": 5419.8,
+          "decode_tps": 11.8,
+          "prefill_tps": 273.8,
+          "gpu_peak_mb": 42039,
+          "baseline_mem_mb": 39006,
+          "ctx": 8192,
+          "run": 1,
+          "kv_cache_mb": 3033,
+          "model_mb": 39006,
+          "overhead_mb": 3033,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 16384,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 58333.7,
+      "decode_tps": 11.1,
+      "prefill_tps": 255.6,
+      "gpu_peak_mb": 44296,
+      "kv_cache_mb": 5290,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 14911,
+          "output_tokens": 64,
+          "ttft_ms": 58333.7,
+          "decode_ms": 5773.3,
+          "decode_tps": 11.1,
+          "prefill_tps": 255.6,
+          "gpu_peak_mb": 44296,
+          "baseline_mem_mb": 39006,
+          "ctx": 16384,
+          "run": 1,
+          "kv_cache_mb": 5290,
+          "model_mb": 39006,
+          "overhead_mb": 5290,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 32768,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 126525.7,
+      "decode_tps": 9.8,
+      "prefill_tps": 235.5,
+      "gpu_peak_mb": 48933,
+      "kv_cache_mb": 9927,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 29801,
+          "output_tokens": 64,
+          "ttft_ms": 126525.7,
+          "decode_ms": 6543.1,
+          "decode_tps": 9.8,
+          "prefill_tps": 235.5,
+          "gpu_peak_mb": 48933,
+          "baseline_mem_mb": 39006,
+          "ctx": 32768,
+          "run": 1,
+          "kv_cache_mb": 9927,
+          "model_mb": 39006,
+          "overhead_mb": 9927,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 65536,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 302518.9,
+      "decode_tps": 7.8,
+      "prefill_tps": 197.0,
+      "gpu_peak_mb": 58404,
+      "kv_cache_mb": 19398,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 59591,
+          "output_tokens": 64,
+          "ttft_ms": 302518.9,
+          "decode_ms": 8250.2,
+          "decode_tps": 7.8,
+          "prefill_tps": 197.0,
+          "gpu_peak_mb": 58404,
+          "baseline_mem_mb": 39006,
+          "ctx": 65536,
+          "run": 1,
+          "kv_cache_mb": 19398,
+          "model_mb": 39006,
+          "overhead_mb": 19398,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 131072,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 39006,
+      "ttft_ms": 811735.4,
+      "decode_tps": 5.8,
+      "prefill_tps": 146.8,
+      "gpu_peak_mb": 77352,
+      "kv_cache_mb": 38346,
+      "baseline_mem_mb": 39006,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 119171,
+          "output_tokens": 64,
+          "ttft_ms": 811735.4,
+          "decode_ms": 11064.6,
+          "decode_tps": 5.8,
+          "prefill_tps": 146.8,
+          "gpu_peak_mb": 77352,
+          "baseline_mem_mb": 39006,
+          "ctx": 131072,
+          "run": 1,
+          "kv_cache_mb": 38346,
+          "model_mb": 39006,
+          "overhead_mb": 38346,
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}

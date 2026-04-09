@@ -1,0 +1,114 @@
+{
+  "bench_type": "kv_sweep",
+  "model": "/Users/perflab1/models/Qwen3.5-35B-A3B-4bit",
+  "model_mem_mb": 18594.992317199707,
+  "system": {
+    "hostname": "SC-NB-MAC-M5MAX-PERFLAB-01",
+    "platform": "macOS-26.4-arm64-arm-64bit-Mach-O",
+    "chip": "Apple M5 Max",
+    "ram_gb": 128,
+    "macos": "26.4"
+  },
+  "timestamp": "2026-04-09T12:16:10",
+  "results": [
+    {
+      "ctx": 8192,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 18595,
+      "ttft_ms": 1771.0,
+      "decode_tps": 131.4,
+      "prefill_tps": 4212.9,
+      "gpu_peak_mb": 20689,
+      "kv_cache_mb": 2094,
+      "baseline_mem_mb": 18595,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 7461,
+          "output_tokens": 64,
+          "ttft_ms": 1771.0,
+          "decode_ms": 487.2,
+          "decode_tps": 131.4,
+          "prefill_tps": 4212.9,
+          "gpu_peak_mb": 20689,
+          "baseline_mem_mb": 18595,
+          "ctx": 8192,
+          "run": 1,
+          "kv_cache_mb": 2094,
+          "model_mb": 18595,
+          "overhead_mb": 2094,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 32768,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 18595,
+      "ttft_ms": 8031.7,
+      "decode_tps": 115.1,
+      "prefill_tps": 3710.4,
+      "gpu_peak_mb": 22531,
+      "kv_cache_mb": 3936,
+      "baseline_mem_mb": 18595,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 29801,
+          "output_tokens": 64,
+          "ttft_ms": 8031.7,
+          "decode_ms": 556.3,
+          "decode_tps": 115.1,
+          "prefill_tps": 3710.4,
+          "gpu_peak_mb": 22531,
+          "baseline_mem_mb": 18595,
+          "ctx": 32768,
+          "run": 1,
+          "kv_cache_mb": 3936,
+          "model_mb": 18595,
+          "overhead_mb": 3936,
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "ctx": 131072,
+      "status": "ok",
+      "repeats": 1,
+      "model_mb": 18595,
+      "ttft_ms": 71628.9,
+      "decode_tps": 76.2,
+      "prefill_tps": 1663.7,
+      "gpu_peak_mb": 30099,
+      "kv_cache_mb": 11504,
+      "baseline_mem_mb": 18595,
+      "ttft_ms_stddev": 0,
+      "decode_tps_stddev": 0,
+      "gpu_peak_mb_stddev": 0,
+      "runs": [
+        {
+          "input_tokens": 119171,
+          "output_tokens": 64,
+          "ttft_ms": 71628.9,
+          "decode_ms": 840.2,
+          "decode_tps": 76.2,
+          "prefill_tps": 1663.7,
+          "gpu_peak_mb": 30099,
+          "baseline_mem_mb": 18595,
+          "ctx": 131072,
+          "run": 1,
+          "kv_cache_mb": 11504,
+          "model_mb": 18595,
+          "overhead_mb": 11504,
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}
